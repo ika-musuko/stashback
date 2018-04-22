@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+	</div>
+	{% if current_user.is_anonymous %}
+		<h1>Not Authorized Yet.</h1>
+	{% else %}
+		<h1>Your name is {{ current_user.username }}</h1>
+		<h1>Your email is {{ current_user.email }}</h1>
+	{% endif %}
+{% endblock %}

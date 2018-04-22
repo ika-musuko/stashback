@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
+	{% for charity in charities %}
+		<img src={{ url_for('static', filename='logos/' + charity.charity_logo) }}/>
+{% endblock %}
