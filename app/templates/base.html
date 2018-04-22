@@ -8,11 +8,36 @@
           <a href="{{ url_for('google.login') }}">Login</a>
         {% else %}
           <a href="{{ url_for('options') }} ">Options</a>
-          <a href="{{ url_for('change_charity') }}">Change Charity</a>
-          <a href="{{ url_for('refresh_stash') }}">Refresh Stash</a>
+          {% if current_user.is_donator %}
+              <a href="{{ url_for('change_charity') }}">Change Charity</a>
+              <a id="refresh-stash">Refresh Stash</a>
+          {% endif %}
           <a href="{{ url_for('logout') }}">Logout</a>
         {% endif %}
-        </div>
+      </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+        <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+      <script>
+        (function($) {
+        var handler = Plaid.create({
+            apiVersion: 'v2',
+            clientName: 'Plaid Walkthrough Demo',
+            env: '{{ plaid_environment }}',
+            product: ['transactions'],
+            key: '{{ plaid_public_key }}',
+            onSuccess: function(public_token) {
+                $.post('/get_access_token', {public_token: public_token}, function() {
+                    window.location.href = '/refresh_stash'; //change this route or function
+                });
+            },
+        });
+
+        $('#refresh-stash').on('click', function(e) {
+            handler.open();
+        });
+        })(jQuery);
+      </script>
+
             <hr>
             {% with messages = get_flashed_messages() %}
             {% if messages %}
