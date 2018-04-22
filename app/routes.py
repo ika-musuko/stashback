@@ -183,7 +183,6 @@ def refresh_stash():
     # take the difference between the old stash and the new stash and add an invoice for that much
     stripe.InvoiceItem.create(currency='usd', customer=donator.customer_id, amount=int((new_stash-old_stash)*100))
 
-    raise
     # redirect the user back to the home page
     return redirect(url_for('index'))
 
