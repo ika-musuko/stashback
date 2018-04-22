@@ -44,27 +44,6 @@ stripe_connect_service = OAuth2Service(
         base_url='https://api.stripe.com/',
     )
 
-#The base product and the plan are the same
-try:
-	#Create a product
-	product = stripe.Product.create(
-		name='charity',
-		type='service',
-		)
-
-	#Create a plan
-	plan = stripe.Plan.create(
-		nickname='donate_stash',
-		product=product.id,
-		id='monthly-donation',
-		interval='month',
-		currency='usd',
-		amount=0
-		)
-except:
-	#Product and Plan is going to be created only when the program run first time
-	pass
-
 plaid_keys = {
 	'client_key':os.getenv('PLAID_CLIENT_ID') or '',
 	'secret_key':os.getenv('PLAID_SECRET') or '',

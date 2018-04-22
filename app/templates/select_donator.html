@@ -1,0 +1,7 @@
+<form action="/register_donator_info" method="post">
+<script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+        data-key="{{ key }}"
+        data-email="{{ current_user.email }}"
+        data-description="Apply To This Charity"
+        data-locale="auto"></script>
+</form>

@@ -46,7 +46,9 @@ class Charity(db.Model):
 	connect_access_token = db.Column(db.String(200), index=True, unique=True)
 	connect_user_id = db.Column(db.String(200), index=True, unique=True)
 	connect_refresh_token = db.Column(db.String(200), index=True, unique=True)
+	is_form_done = db.Column(db.Boolean, default=False)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))#Connected to the user's id
+
 
 class Donator(db.Model):
 	'''
@@ -54,5 +56,6 @@ class Donator(db.Model):
 	'''
 	id = db.Column(db.Integer, primary_key=True)
 	customer_id = db.Column(db.String(64))
+	current_charity_id = db.Column(db.Integer)#Current charity id that the donator is going to donete
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))#Connected to the user's id
 	#option: How to calculate the stash

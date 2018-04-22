@@ -2,4 +2,5 @@
 {% block content %}
 	{% for charity in charities %}
 		<img src={{ url_for('static', filename='logos/' + charity.charity_logo) }}/>
+		<a href="\apply_charity?id={{ charity.id }}">Apply</a>
 {% endblock %}
