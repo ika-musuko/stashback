@@ -135,7 +135,8 @@ def select_donator():
 	'''
 	return render_template('select_donator.html', title='Register as a Donator', key=stripe_keys['publishable_key'])
 
-@app.route('/regiter_donator_info', methods=['POST'])
+@app.route('/register_donator_info', methods=['POST'])
+@login_required
 def register_donator_info():
 	'''
 	Save the donator's info in db
@@ -155,6 +156,7 @@ def register_donator_info():
 	db.session.commit()
 	flash('Your info is saved successfully. Please choose the charity you want to donate.')
 	return redirect(url_for('change_charity'))
+	return render_template('register_donator_info.html')
 
 
 @app.route('/select_charity')
@@ -195,6 +197,9 @@ def save_connect_info():
 								connect_user_id=connect_user_id, 
 								connect_refresh_token=connect_refresh_token)
 
+		db.session.add(charity)
+		db.session.commit()
+
 	except KeyError:
 		print(connect_account_info)
 
@@ -207,11 +212,15 @@ def input_charity_info():
 	Redirect to this page after Stripe Connect
 	Create the product and the plan which is connected to the charity
 	'''
+	print('AAAA')
 	form = CharityInputForm()
-	if form.validate_on_submit():
+	if form.is_submitted():
+		print("submitted.")
+	if form.validate_on_submit():#This line should be fixed later.
 		'''
 		Save the charity's info into Charity data table
 		'''
+		print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
 		filename = secure_filename(form.charity_logo.data.filename)
 		form.charity_logo.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))#Maybe it's better to trim the logo using js
 

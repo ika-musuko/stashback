@@ -43,12 +43,11 @@ class Charity(db.Model):
 	description = db.Column(db.Text(400))#just decided the length randomly
 	link = db.Column(db.String(200), index=True)
 	connect_public_key = db.Column(db.String(200), index=True)#not sure if it's unique for the prototype
-	connect_access_token = db.Column(db.String(200), index=True, unique=True)
-	connect_user_id = db.Column(db.String(200), index=True, unique=True)
-	connect_refresh_token = db.Column(db.String(200), index=True, unique=True)
+	connect_access_token = db.Column(db.String(200), index=True)
+	connect_user_id = db.Column(db.String(200), index=True)
+	connect_refresh_token = db.Column(db.String(200), index=True)
 	is_form_done = db.Column(db.Boolean, default=False)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))#Connected to the user's id
-
 
 class Donator(db.Model):
 	'''
