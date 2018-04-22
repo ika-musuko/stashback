@@ -19,8 +19,8 @@ login = LoginManager(app)
 login.login_view = 'login'
 
 blueprint = make_google_blueprint(
-	client_id="887094665146-dr3gtcjss9dquehr579iorba4qe030fp.apps.googleusercontent.com",
-	client_secret="aGzRtH3xMRzACLnXCjrLC1gr",
+	client_id=os.environ.get('GOOGLE_CLIENT_ID') or '',
+        client_secret=os.environ.get('GOOGLE_CLIENT_SECRET') or '',
 	scope=['profile', 'email'],
 	offline=True
 	)

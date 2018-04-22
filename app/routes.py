@@ -104,7 +104,7 @@ def get_access_token():
 	access_token = exchange_response['access_token']
 
 	return jsonify(exchange_response)
-	return redirect(url_for('index'))
+	#return redirect(url_for('index'))
 	#return render_template('get_access_token.html')
 
 @app.route('/calculate_stash', methods=['GET', 'POST'])
