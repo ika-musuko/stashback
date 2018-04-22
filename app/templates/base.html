@@ -15,16 +15,17 @@
           <a href="{{ url_for('logout') }}">Logout</a>
         {% endif %}
       </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+      {% if current_user.is_donator %}
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
         <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
       <script>
         (function($) {
         var handler = Plaid.create({
             apiVersion: 'v2',
             clientName: 'Plaid Walkthrough Demo',
-            env: '{{ PLAID_ENV }}',
+            env: '{{ plaid_keys["plaid_env"] }}',
             product: ['transactions'],
-            key: '{{ PLAID_PUBLIC_KEY }}',
+            key: '{{ plaid_keys["public_key"] }}',
             onSuccess: function(public_token) {
                 $.post('/get_access_token', {public_token: public_token}, function() {
                     window.location.href = '/refresh_stash'; //change this route or function
@@ -37,6 +38,7 @@
         });
         })(jQuery);
       </script>
+      {% endif %}
 
             <hr>
             {% with messages = get_flashed_messages() %}

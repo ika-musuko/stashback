@@ -55,8 +55,6 @@ client = plaid.Client(client_id = plaid_keys['client_key'], secret=plaid_keys['s
                   public_key=plaid_keys['public_key'], environment=plaid_keys['plaid_env'])
 
 
-PLAID_ACCESS_TOKEN = None
-PLAID_PUBLIC_TOKEN = None
 
 from app import routes, models, errors
 

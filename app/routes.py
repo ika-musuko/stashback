@@ -7,7 +7,7 @@ from app import stripe_keys, stripe_connect_service, params
 from app import plaid_keys, client
 from app.models import User, Charity, Donator
 from app.forms import CharityInputForm
-from flask import render_template, redirect, url_for, redirect, flash, request, session
+from flask import jsonify, render_template, redirect, url_for, redirect, flash, request, session
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_dance.consumer import oauth_authorized
 from flask_dance.contrib.google import google
@@ -35,7 +35,7 @@ def index():
         donator = Donator.query.filter_by(user_id=current_user.id).first()
         invoice_list = stripe.InvoiceItem.list(customer=donator.customer_id)
         current_stash = round_up(invoice_list)
-        return render_template('index.html', title='Home', current_stash=current_stash)
+        return render_template('index.html', title='Home', current_stash=current_stash, plaid_keys=plaid_keys)
     return render_template('index.html', title='Home')
 
 @oauth_authorized.connect_via(blueprint)
@@ -101,13 +101,19 @@ def apply_charity():
     flash('You applied to the charity successfully.')
     return redirect(url_for('index'))
 
+
+PLAID_ACCESS_TOKEN = None
+PLAID_PUBLIC_TOKEN = None
+
 def get_transactions():
+    global PLAID_ACCESS_TOKEN
+
     # Pull transactions for the last month
     start_date = "{:%Y-%m-%d}".format(datetime.datetime.now().replace(day=1))
     end_date = "{:%Y-%m-%d}".format(datetime.datetime.now())
 
     try:
-        response = client.Transactions.get(app.PLAID_ACCESS_TOKEN, start_date, end_date)
+        response = client.Transactions.get(PLAID_ACCESS_TOKEN, start_date, end_date)
         return response
     except plaid.errors.PlaidError as e:
         return {'error': {'error_code': e.code, 'error_message': str(e)}}
@@ -121,13 +127,14 @@ def success():
 
 @app.route("/get_access_token", methods=['POST'])
 def get_access_token():
-    app.PLAID_PUBLIC_TOKEN = request.form['public_token']
-    exchange_response = client.Item.public_token.exchange(app.PLAID_PUBLIC_TOKEN)
-    print('public token: ' + app.PLAID_PUBLIC_TOKEN)
+    global PLAID_PUBLIC_TOKEN, PLAID_ACCESS_TOKEN
+    PLAID_PUBLIC_TOKEN = request.form['public_token']
+    exchange_response = client.Item.public_token.exchange(PLAID_PUBLIC_TOKEN)
+    print('public token: ' + PLAID_PUBLIC_TOKEN)
     print('access token: ' + exchange_response['access_token'])
     print('item ID: ' + exchange_response['item_id'])
 
-    app.PLAID_ACCESS_TOKEN = exchange_response['access_token']
+    PLAID_ACCESS_TOKEN = exchange_response['access_token']
 
     return jsonify(exchange_response)
 
@@ -136,8 +143,14 @@ def round_up(invoice_list: list, round_up_amt: float=1.00) -> float:
     return sum(invoice['amount'] % round_up_amt for invoice in invoice_list)/round_up_amt
 
 
+def erase_all_invoices():
+    invoice_list = stripe.InvoiceItem.list(customer=donator.customer_id)
+    for i in invoice_list:
+        stripe.InvoiceItem.delete(invoiceitem=i.id)
+
 @app.route('/refresh_stash')
 @login_required
+@get_stripe_key
 def refresh_stash():
     '''
     Link to Plaid Form
@@ -149,18 +162,17 @@ def refresh_stash():
         return redirect(url_for('index'))
 
     # get the donator info
-    donator = Donatoronator.query.filter_by(user_id=current_user.id).first()
+    donator = Donator.query.filter_by(user_id=current_user.id).first()
 
     # get the user's old stash
     old_stash = stripe.InvoiceItem.list(customer=donator.customer_id)
 
 
     # get transactions from the last month
-    transactions = get_transactions()
-    transaction_amounts = map(float, transactions['transactions'])
+    transactions = get_transactions()['transactions']
 
     # calculate the total new stash (ignore any negative values)
-    new_stash = sum(math.fmod(t, 1.00) for t in transaction_amounts if t > 0.0)
+    new_stash = sum(math.fmod(t['amount'], 1.00) for t in transactions if t['amount'] > 0.0)
 
 
     # calculate the old stash
@@ -169,8 +181,9 @@ def refresh_stash():
 
     # update the donator's stripe plan (create a new stripe InvoiceItem)
     # take the difference between the old stash and the new stash and add an invoice for that much
-    stripe.InvoiceItem.create(currency='usd', customer=donator.customer_id, amount=new_stash-old_stash)
+    stripe.InvoiceItem.create(currency='usd', customer=donator.customer_id, amount=int((new_stash-old_stash)*100))
 
+    raise
     # redirect the user back to the home page
     return redirect(url_for('index'))
 
