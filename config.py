@@ -13,3 +13,11 @@ class Config(object):
     os.path.join(basedir, 'app\static\logos')
 
     #WTF_CSRF_ENABLED = True
+
+    # image upload urls
+    # Uploads
+    UPLOADS_DEFAULT_DEST = basedir + '/project/static/img/'
+    UPLOADS_DEFAULT_URL = 'http://127.0.0.1:5000/static/img/'
+
+    UPLOADED_IMAGES_DEST = basedir + '/project/static/img/'
+    UPLOADED_IMAGES_URL = 'http://127.0.0.1:5000/static/img/'

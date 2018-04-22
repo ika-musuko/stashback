@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_dance.contrib.google import make_google_blueprint
+from flask_uploads import UploadSet, IMAGES, configure_uploads
 from rauth import OAuth2Service
 import os
 import stripe
@@ -17,6 +18,10 @@ migrate = Migrate(app, db)
 
 login = LoginManager(app)
 login.login_view = 'login'
+
+# upload manager for pictures and files
+images = UploadSet('images', IMAGES)
+configure_uploads(app, images)
 
 blueprint = make_google_blueprint(
 	client_id=os.environ.get('GOOGLE_CLIENT_ID') or '',

@@ -1,6 +1,6 @@
 import app
 from app import app
-from app import db
+from app import db, images
 from app import login
 from app import blueprint
 from app import stripe_keys, stripe_connect_service, params
@@ -268,22 +268,23 @@ def save_connect_info():
     resp = stripe_connect_service.get_raw_access_token(method='POST', data=data)
     connect_account_info = json.loads(resp.text)
 
-    try:
-        connect_public_key = connect_account_info['stripe_publishable_key']
-        connect_access_token = connect_account_info['access_token']
-        connect_user_id = connect_account_info['stripe_user_id']
-        connect_refresh_token = connect_account_info['refresh_token']
+    #try:
+    connect_public_key = connect_account_info['stripe_publishable_key']
+    connect_access_token = connect_account_info['access_token']
+    connect_user_id = connect_account_info['stripe_user_id']
+    connect_refresh_token = connect_account_info['refresh_token']
 
-        charity = Charity(connect_public_key=connect_public_key,
-                                connect_access_token=connect_access_token,
-                                connect_user_id=connect_user_id,
-                                connect_refresh_token=connect_refresh_token)
+    charity = Charity(user_id=current_user.id,
+                            connect_public_key=connect_public_key,
+                            connect_access_token=connect_access_token,
+                            connect_user_id=connect_user_id,
+                            connect_refresh_token=connect_refresh_token)
 
-        db.session.add(charity)
-        db.session.commit()
+    db.session.add(charity)
+    db.session.commit()
 
-    except KeyError:
-        print(connect_account_info)
+    #except KeyError:
+    #    print(connect_account_info)
 
     return redirect(url_for('input_charity_info'))
 
@@ -296,20 +297,18 @@ def input_charity_info():
     '''
     print('AAAA')
     form = CharityInputForm()
-    if form.is_submitted():
-        print("submitted.")
     if form.validate_on_submit():#This line should be fixed later.
         '''
         Save the charity's info into Charity data table
         '''
         print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
-        filename = secure_filename(form.charity_logo.data.filename)
-        form.charity_logo.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))#Maybe it's better to trim the logo using js
+        filename = images.save(request.files['charity_logo'])
+        image_url = images.url(filename)
 
         charity = Charity.query.filter_by(user_id=current_user.id).first()
 
         charity.charity_name = form.charity_name.data
-        charity.charity_logo = form.charity_logo.data
+        charity.charity_logo = image_url
         charity.description = form.description.data
         charity.link = form.link.data
         charity.is_form_done = True

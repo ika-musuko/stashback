@@ -1,9 +1,10 @@
 <h1>Redirect to this page after connecting to Stripe Connect</h1>
-<form action="" method="post">
+<form action="" method="post" enctype="multipart/form-data" >
 	{{ form.hidden_tag() }}
 	<p>{{ form.charity_name() }}</p>
 	<p>{{ form.charity_logo() }}</p>
 	<p>{{ form.description() }}</p>
 	<p>{{ form.link() }}</p>
 	<p>{{ form.submit() }}</p>
+	<p>{{ form.csrf_token }}</p>
 </form>
