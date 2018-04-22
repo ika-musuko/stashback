@@ -54,4 +54,4 @@ plaid_keys = {
 client = plaid.Client(client_id = plaid_keys['client_key'], secret=plaid_keys['secret_key'],
                   public_key=plaid_keys['public_key'], environment=plaid_keys['plaid_env'])
 
-from app import routes, models
+from app import routes, models, errors

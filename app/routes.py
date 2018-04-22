@@ -175,7 +175,6 @@ def save_connect_info():
 	'''
 	code = request.args.get('code')
 	url = stripe_connect_service.get_authorize_url(**params)
-	print(url)
 
 	data = {
 		'grant_type': 'authorization_code',
@@ -184,26 +183,21 @@ def save_connect_info():
 
 	resp = stripe_connect_service.get_raw_access_token(method='POST', data=data)
 	connect_account_info = json.loads(resp.text)
-	print(connect_account_info)#Debug
 
-	connect_public_key = connect_account_info['stripe_publishable_key']
-	connect_access_token = connect_account_info['access_token']
-	connect_user_id = connect_account_info['stripe_user_id']
-	connect_refresh_token = connect_account_info['refresh_token']
+	try:
+		connect_public_key = connect_account_info['stripe_publishable_key']
+		connect_access_token = connect_account_info['access_token']
+		connect_user_id = connect_account_info['stripe_user_id']
+		connect_refresh_token = connect_account_info['refresh_token']
 
-	#Debug
-	print(connect_public_key)
-	print(connect_access_token)
-	print(connect_user_id)
-	print(connect_refresh_token)
+		charity = Charity(connect_public_key=connect_public_key, 
+								connect_access_token=connect_access_token,
+								connect_user_id=connect_user_id, 
+								connect_refresh_token=connect_refresh_token)
 
-	charity = Charity(connect_public_key=connect_account_info['stripe_publishable_key'], 
-							connect_access_token=connect_account_info['access_token'],
-							connect_user_id=connect_account_info['stripe_user_id'], 
-							connect_refresh_token=connect_account_info['refresh_token'])
+	except KeyError:
+		print(connect_account_info)
 
-	db.session.add(charity)
-	db.session.commit()
 	return redirect(url_for('input_charity_info'))
 
 @app.route('/input_charity_info', methods=['GET', 'POST'])
@@ -230,6 +224,26 @@ def input_charity_info():
 		charity.is_form_done = True
 
 		db.session.commit()
+
+		stripe.api_key = stripe_keys['secret_key']
+
+		try:
+			product = stripe.Product.create(
+				name='donation',
+				type='service'
+				)
+
+			#Plan should be created only once
+			plan = stripe.Plan.create(
+				nickname=current_user.id,#Cannot be changed
+				product=product.id,
+				id=current_user.id,
+				interval='month',
+				currency='usd',
+				amount=0
+				)
+		except:
+			print('Error caused.')
 
 		flash('Your Charity is registered successfully!')
 		return redirect(url_for('index'))
