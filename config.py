@@ -10,6 +10,6 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER') or \
-    os.path.join(basedir, 'app\static\images')
+    os.path.join(basedir, 'app\static\logos')
 
-    WTF_CSRF_ENABLED = True
+    #WTF_CSRF_ENABLED = True
