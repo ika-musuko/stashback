@@ -22,9 +22,9 @@
         var handler = Plaid.create({
             apiVersion: 'v2',
             clientName: 'Plaid Walkthrough Demo',
-            env: '{{ plaid_environment }}',
+            env: '{{ PLAID_ENV }}',
             product: ['transactions'],
-            key: '{{ plaid_public_key }}',
+            key: '{{ PLAID_PUBLIC_KEY }}',
             onSuccess: function(public_token) {
                 $.post('/get_access_token', {public_token: public_token}, function() {
                     window.location.href = '/refresh_stash'; //change this route or function

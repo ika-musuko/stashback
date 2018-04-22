@@ -54,7 +54,7 @@ class Donator(db.Model):
 	Data tables for donators
 	'''
 	id = db.Column(db.Integer, primary_key=True)
-	customer_id = db.Column(db.String(64))
+	customer_id = db.Column(db.String(64)) # stripe customer id
 	current_charity_id = db.Column(db.Integer)#Current charity id that the donator is going to donete
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))#Connected to the user's id
 	#option: How to calculate the stash

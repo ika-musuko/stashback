@@ -6,5 +6,8 @@
 	{% else %}
 		<h1>Your name is {{ current_user.username }}</h1>
 		<h1>Your email is {{ current_user.email }}</h1>
+		{% if current_user.is_donator %}
+			<h1>current stash: ${{ current_stash }}</h1>
+		{% endif %}
 	{% endif %}
 {% endblock %}

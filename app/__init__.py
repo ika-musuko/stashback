@@ -28,30 +28,35 @@ blueprint = make_google_blueprint(
 app.register_blueprint(blueprint, url_prefix='/login')
 
 stripe_keys = {
-	'secret_key': os.environ.get('STRIPE_SECRET_KEY') or 'sk_test_SPxRtNhAGFTuIoS4adJbvtNS',
-	'publishable_key': os.environ.get('STRIPE_PUBLISHABLE_KEY') or 'pk_test_pIQmqoDGHlxFVEAMvslLHr2U',
-	'oauth_client_id': os.environ.get('STRIPE_OAUTH_CLIENT_ID') or 'ca_CfkdcqiWKWCORwQXaoxOjuvzkDO30YeY',
+	'secret_key': os.environ.get('STRIPE_SECRET_KEY') or '',
+	'publishable_key': os.environ.get('STRIPE_PUBLISHABLE_KEY') or '',
+	'oauth_client_id': os.environ.get('STRIPE_OAUTH_CLIENT_ID') or '',
 }
 
 params = {'response_type': 'code', 'scope': 'admin'}
 
 stripe_connect_service = OAuth2Service(
         name='stripe',
-        client_id='ca_CfkdcqiWKWCORwQXaoxOjuvzkDO30YeY',
-        client_secret='sk_test_SPxRtNhAGFTuIoS4adJbvtNS',
+        client_id=stripe_keys['oauth_client_id'],
+        client_secret=stripe_keys['secret_key'],
         authorize_url='https://connect.stripe.com/oauth/authorize',
         access_token_url='https://connect.stripe.com/oauth/token',
         base_url='https://api.stripe.com/',
     )
 
 plaid_keys = {
-	'client_key':os.getenv('PLAID_CLIENT_ID') or '5ad3deefbdc6a40eb40cb837',
-	'secret_key':os.getenv('PLAID_SECRET') or '2477ce93d86dda1ea323f1c8378fe7',
-	'public_key':os.getenv('PLAID_PUBLIC_KEY') or '2b8b50cccbb000a6980afd5e46b2cf',
+	'client_key':os.getenv('PLAID_CLIENT_ID') or '',
+	'secret_key':os.getenv('PLAID_SECRET') or '',
+	'public_key':os.getenv('PLAID_PUBLIC_KEY') or '',
 	'plaid_env':os.getenv('PLAID_ENV', 'sandbox'),
 }
 
 client = plaid.Client(client_id = plaid_keys['client_key'], secret=plaid_keys['secret_key'],
                   public_key=plaid_keys['public_key'], environment=plaid_keys['plaid_env'])
 
+
+PLAID_ACCESS_TOKEN = None
+PLAID_PUBLIC_TOKEN = None
+
 from app import routes, models, errors
+
