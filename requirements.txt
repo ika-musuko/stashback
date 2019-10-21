@@ -28,5 +28,5 @@ SQLAlchemy-Utils==0.33.2
 stripe==1.79.1
 urllib3==1.22
 URLObject==2.4.3
-Werkzeug==0.14.1
+Werkzeug==0.15.3
 WTForms==2.1
